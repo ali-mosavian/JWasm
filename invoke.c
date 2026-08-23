@@ -921,7 +921,11 @@ static int PushInvokeParam( int i, struct asm_tok tokenarray[], struct dsym *pro
                     goto push_address;
                 if ( opnd.Ofssize == USE_EMPTY )
                     opnd.Ofssize = ModuleInfo.Ofssize;
-                asize = SizeFromMemtype( opnd.mem_type, opnd.Ofssize, opnd.type );
+                /* MT_PTR falls back to the model's default distance,
+                 * ignoring this symbol's own isfar -- unlike every
+                 * other SizeFromMemtype() call site. Breaks far ptr T
+                 * args against a matching far ptr T PROTO. */
+                asize = SizeFromMemtype( ( opnd.mem_type == MT_PTR && opnd.sym && opnd.sym->isfar ) ? MT_FAR : opnd.mem_type, opnd.Ofssize, opnd.type );
             } else {
                 if ( opnd.sym != NULL )
                     asize = opnd.sym->type->total_size;
