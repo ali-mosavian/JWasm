@@ -1162,7 +1162,11 @@ static void open_files( void )
 
     /* open OBJ file */
     if ( Options.syntax_check_only == FALSE ) {
-        CurrFile[OBJ] = fopen( CurrFName[OBJ], "wb" );
+        /* v2.12+patch: "w+b", not "wb" -- omf_write_module() has to read
+         * the already-written records back when the final header turns out
+         * larger than the space reserved for it after pass one.
+         */
+        CurrFile[OBJ] = fopen( CurrFName[OBJ], "w+b" );
         if( CurrFile[OBJ] == NULL ) {
             DebugMsg(("open_files(): cannot open object file, fopen(\"%s\") failed\n", CurrFName[OBJ] ));
             Fatal( CANNOT_OPEN_FILE, CurrFName[OBJ], ErrnoStr() );
